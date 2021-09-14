@@ -71,9 +71,12 @@ outputs:
     description: 'The URL of the pull request.'
   pull-request-operation:
     description: 'The pull request operation performed by the action, `created`, `updated` or `closed`.'
+# runs:
+#   using: 'node12'
+#   main: 'dist/index.js'
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: "docker"
+  image: "Dockerfile"
 branding:
   icon: 'git-pull-request'
   color: 'gray-dark'
