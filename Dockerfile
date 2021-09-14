@@ -4,6 +4,9 @@ RUN apk --update add git-crypt git-lfs
 
 WORKDIR /opt/project
 
-COPY entrypoint.sh .
+COPY . .
+
+RUN npm install
+RUN npm run build
 
 ENTRYPOINT ["/opt/project/entrypoint.sh"]
