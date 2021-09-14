@@ -8,4 +8,4 @@ echo "$GIT_CRYPT_KEY" | base64  -d > ./git-crypt-key
 
 # rm ./git-crypt-key
 
-node dist/index.js
+node /opt/project/dist/index.js
