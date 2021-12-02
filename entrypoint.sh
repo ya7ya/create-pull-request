@@ -2,10 +2,10 @@
 
 set -eu
 
-echo "$GIT_CRYPT_KEY" | base64  -d > ./git-crypt-key
+echo "$GIT_CRYPT_KEY" | base64  -d > /tmp/git-crypt-key
 
-# git-crypt unlock ./git-crypt-key
+git-crypt unlock /tmp/git-crypt-key
 
-# rm ./git-crypt-key
+rm /tmp/git-crypt-key
 
 node /opt/project/dist/index.js
