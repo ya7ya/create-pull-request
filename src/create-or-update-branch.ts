@@ -33,7 +33,9 @@ export async function tryFetch(
   branch: string
 ): Promise<boolean> {
   try {
-    await git.fetch([`${branch}:refs/remotes/${remote}/${branch}`], remote)
+    await git.fetch([`${branch}:refs/remotes/${remote}/${branch}`], remote, [
+      '--force'
+    ])
     return true
   } catch {
     return false
@@ -91,7 +93,8 @@ export async function createOrUpdateBranch(
   base: string,
   branch: string,
   branchRemoteName: string,
-  signoff: boolean
+  signoff: boolean,
+  addPaths: string[]
 ): Promise<CreateOrUpdateBranchResult> {
   // Get the working base.
   // When a ref, it may or may not be the actual base.
@@ -118,15 +121,25 @@ export async function createOrUpdateBranch(
   const tempBranch = uuidv4()
   await git.checkout(tempBranch, 'HEAD')
   // Commit any uncommitted changes
-  if (await git.isDirty(true)) {
+  if (await git.isDirty(true, addPaths)) {
     core.info('Uncommitted changes found. Adding a commit.')
-    await git.exec(['add', '-A'])
-    const params = ['-m', commitMessage]
-    if (signoff) {
-      params.push('--signoff')
+    const aopts = ['add']
+    if (addPaths.length > 0) {
+      aopts.push(...['--', ...addPaths])
+    } else {
+      aopts.push('-A')
     }
-    await git.commit(params)
+    await git.exec(aopts, true)
+    const popts = ['-m', commitMessage]
+    if (signoff) {
+      popts.push('--signoff')
+    }
+    await git.commit(popts)
   }
+
+  // Remove uncommitted tracked and untracked changes
+  await git.exec(['reset', '--hard'])
+  await git.exec(['clean', '-f', '-d'])
 
   // Perform fetch and reset the working base
   // Commits made during the workflow will be removed
